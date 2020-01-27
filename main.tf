@@ -43,9 +43,8 @@ resource "azurerm_storage_account" "storageaccount" {
 }
 
 data "azurerm_storage_account" "storageaccount" {
-  name = azurerm_storage_account.storageaccount.0.name
-  resource_group_name =var.rg_name
-
+  name                = azurerm_storage_account.storageaccount.0.name
+  resource_group_name = var.rg_name
 }
 
 data "azurerm_client_config" "current" {}
