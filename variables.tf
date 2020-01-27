@@ -44,26 +44,6 @@ variable "plan_rg" {
   description = "Azure App Service Plan resource group name.  Either 'plan' or 'plan_name' and 'plan_rg' must be set. 'Plan' takes precendence."
 }
 
-
-variable "storage_account_id" {
-  default     = ""
-  description = "."
-}
-
-variable "storage_account_name" {
-  default     = ""
-  description = "."
-}
-
-variable "storage_account_resource_group" {
-  default     = ""
-  description = "."
-}
-
-variable "storage_connection_string" {
-  description = "."
-}
-
 variable "function_version" {
   default = "~2"
   description = "Runtime version of Azure Function App.  Values are '~1', '~2', '~3'."
@@ -81,13 +61,34 @@ variable "website_run_from_package" {
 
 variable "enable_builtin_logging" {
   default = "false"
-  description = "This determines whether to enable builtin logging.  The default is false, under the premis that the function logs to Application Insights."
+  description = "This determines whether to enable builtin logging.  The default is false, under the premise that the function logs to Application Insights."
 }
 
 variable "tags" {
   type        = map(string)
   default     = {}
   description = "A mapping of tags to assign to the web app."
+}
+
+## Storage Account ##
+variable "account_kind" {
+  default     = "StorageV2"
+  description = "Valid values are:  Storage,BlobStorage,StorageV2"
+}
+
+variable "account_tier" {
+  default     = "Standard"
+  description = "Valid values are:  Standard,Premium"
+}
+
+variable "account_replication_type" {
+  default     = ""
+  description = "Valid values are: LRS, ZRS, GRS, RAGRS"
+}
+
+variable "access_tier" {
+  default     = "cool"
+  description = "Valid values are: Cool, Hot"
 }
 
 # Compute default name values
@@ -107,6 +108,13 @@ locals {
   name_prefix = var.name_prefix != "" ? var.name_prefix : local.default_name_prefix
   name        = format("%s%s", local.name_prefix, local.type)
 
+  storage_account_type   = lookup(module.naming.type-map, "azurerm_storage_account", "typ")
+  storage_account_name = format("%s%s", local.name_prefix, local.storage_account_type)
+
+  default_account_replication_type = local.env_id =="p" ? "GRS" : "LRS"
+  account_replication_type = var.account_replication_type == "" ? local.default_account_replication_type : var.account_replication_type
+
+  storage_connection_string = data.azurerm_storage_account.storageaccount.primary_blob_connection_string
 }
 
 # This module provides a data map output to lookup naming standard references
