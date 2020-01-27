@@ -37,14 +37,15 @@ resource "azurerm_storage_account" "storageaccount" {
   account_replication_type  = local.account_replication_type
   account_tier              = var.account_tier
 
-  tags = {
+  tags = merge({
     InfrastructureAsCode = "True"
-  }
+  }, var.tags)
 }
 
 data "azurerm_storage_account" "storageaccount" {
   name                = azurerm_storage_account.storageaccount.0.name
   resource_group_name = var.rg_name
+  depends_on          = [azurerm_storage_account.storageaccount]
 }
 
 data "azurerm_client_config" "current" {}
